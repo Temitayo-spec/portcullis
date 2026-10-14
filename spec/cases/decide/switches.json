@@ -1,0 +1,55 @@
+[
+  { "name": "false hides a switch on Play", "rule": "R19",
+    "now": "2026-10-13T12:00:00Z", "switchIds": ["rewards", "referrals"],
+    "gate": { "switches": { "rewards": false } },
+    "device": { "store": "play", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "run", "switches": { "rewards": false } } },
+
+  { "name": "true shows a switch on the App Store", "rule": "R19",
+    "now": "2026-10-13T12:00:00Z", "switchIds": ["rewards", "referrals"],
+    "gate": { "switches": { "referrals": true } },
+    "device": { "store": "appstore", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "run", "switches": { "referrals": true } } },
+
+  { "name": "true shows a switch on another Android store", "rule": "R19",
+    "now": "2026-10-13T12:00:00Z", "switchIds": ["rewards", "referrals"],
+    "gate": { "switches": { "referrals": true } },
+    "device": { "store": "com.huawei.appmarket", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "run", "switches": { "referrals": true } } },
+
+  { "name": "Play drops true and keeps false", "rule": "R20",
+    "now": "2026-10-13T12:00:00Z", "switchIds": ["rewards", "referrals"],
+    "gate": { "switches": { "referrals": true, "rewards": false } },
+    "device": { "store": "play", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "run", "switches": { "rewards": false } } },
+
+  { "name": "an install with no store drops true", "rule": "R20",
+    "now": "2026-10-13T12:00:00Z", "switchIds": ["rewards", "referrals"],
+    "gate": { "switches": { "referrals": true } },
+    "device": { "store": null, "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "run", "switches": {} } },
+
+  { "name": "an id the app does not ship is ignored", "rule": "R19",
+    "now": "2026-10-13T12:00:00Z", "switchIds": ["rewards", "referrals"],
+    "gate": { "switches": { "darkmode": false } },
+    "device": { "store": "appstore", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "run", "switches": {} } },
+
+  { "name": "an app with no switches ignores them all", "rule": "R19",
+    "now": "2026-10-13T12:00:00Z", "switchIds": [],
+    "gate": { "switches": { "rewards": false } },
+    "device": { "store": "play", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "run", "switches": {} } },
+
+  { "name": "a quoted false is ignored", "rule": "R19",
+    "now": "2026-10-13T12:00:00Z", "switchIds": ["rewards", "referrals"],
+    "gate": { "switches": { "rewards": "false" } },
+    "device": { "store": "appstore", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "run", "switches": {} } },
+
+  { "name": "switches still apply when an update is asked for", "rule": "R19",
+    "now": "2026-10-13T12:00:00Z", "switchIds": ["rewards", "referrals"],
+    "gate": { "stores": { "play": { "minVersion": "3.0.0" } }, "switches": { "rewards": false } },
+    "device": { "store": "play", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "update", "switches": { "rewards": false } } }
+]

@@ -1,0 +1,15 @@
+[
+  { "name": "Google Play", "rule": "R8", "platform": "android", "installer": "com.android.vending", "expect": "play" },
+  { "name": "Huawei AppGallery", "rule": "R8", "platform": "android", "installer": "com.huawei.appmarket", "expect": "com.huawei.appmarket" },
+  { "name": "Samsung Galaxy Store", "rule": "R8", "platform": "android", "installer": "com.sec.android.app.samsungapps", "expect": "com.sec.android.app.samsungapps" },
+  { "name": "Amazon Appstore", "rule": "R8", "platform": "android", "installer": "com.amazon.venezia", "expect": "com.amazon.venezia" },
+  { "name": "sideloaded with Google's installer", "rule": "R8", "platform": "android", "installer": "com.google.android.packageinstaller", "expect": null },
+  { "name": "sideloaded with the system installer", "rule": "R8", "platform": "android", "installer": "com.android.packageinstaller", "expect": null },
+  { "name": "installed over adb", "rule": "R8", "platform": "android", "installer": "com.android.shell", "expect": null },
+  { "name": "no installer recorded", "rule": "R8", "platform": "android", "installer": null, "expect": null },
+  { "name": "App Store install", "rule": "R8", "platform": "ios", "environment": "appstore", "expect": "appstore" },
+  { "name": "TestFlight", "rule": "R8", "platform": "ios", "environment": "testflight", "expect": null },
+  { "name": "iOS simulator", "rule": "R8", "platform": "ios", "environment": "simulator", "expect": null },
+  { "name": "iOS development build", "rule": "R8", "platform": "ios", "environment": "development", "expect": null },
+  { "name": "web", "rule": "R8", "platform": "web", "expect": null }
+]

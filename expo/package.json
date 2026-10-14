@@ -1,0 +1,60 @@
+{
+  "name": "expo-portcullis",
+  "version": "0.1.0",
+  "description": "A remote pause and update gate for Expo apps. The server can never put words or links on your screen.",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "scripts": {
+    "build": "node internal/module_scripts/build.js",
+    "clean": "node internal/module_scripts/clean.js",
+    "lint": "eslint src/",
+    "test": "node internal/module_scripts/test.js",
+    "prepare": "node internal/module_scripts/prepare.js",
+    "open:ios": "node internal/module_scripts/open-ios.js",
+    "open:android": "node internal/module_scripts/open-android.js"
+  },
+  "keywords": [
+    "react-native",
+    "expo",
+    "expo-portcullis",
+    "Portcullis"
+  ],
+  "repository": "https://github.com/Temitayo-spec/portcullis",
+  "bugs": {
+    "url": "https://github.com/Temitayo-spec/portcullis/issues"
+  },
+  "author": "Temmy (https://github.com/Temitayo-spec)",
+  "license": "MIT",
+  "homepage": "https://github.com/Temitayo-spec/portcullis#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@testing-library/react-native": "^14.1.0",
+    "@types/jest": "^29.2.1",
+    "@types/react": "~19.2.2",
+    "babel-preset-expo": "~57.0.15",
+    "eslint": "~9.39.4",
+    "eslint-config-universe": "^15.0.3",
+    "expo": "^57.0.29",
+    "expo-application": "~57.0.3",
+    "jest": "^29.7.0",
+    "jest-expo": "~57.0.6",
+    "prettier": "^3.0.0",
+    "react": "19.2.3",
+    "react-native": "0.86.3",
+    "test-renderer": "^1.0.0",
+    "typescript": "^5.9.2"
+  },
+  "jest": {
+    "preset": "jest-expo",
+    "roots": [
+      "<rootDir>/src"
+    ]
+  },
+  "peerDependencies": {
+    "expo": "*",
+    "expo-application": "*",
+    "react": "*",
+    "react-native": "*"
+  }
+}

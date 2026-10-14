@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Portcullis gate, contract v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "maintenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["active"],
+      "properties": {
+        "active": { "const": true },
+        "reason": { "enum": ["upgrade", "outage", "issue"] },
+        "until": { "type": "string", "format": "date-time", "maxLength": 40 }
+      }
+    },
+    "stores": {
+      "type": "object",
+      "propertyNames": { "pattern": "^(play|appstore|[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+)$" },
+      "additionalProperties": { "$ref": "#/$defs/minimums" }
+    },
+    "switches": {
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z][a-z0-9_-]{0,31}$" },
+      "additionalProperties": { "type": "boolean" }
+    }
+  },
+  "$defs": {
+    "minimums": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "minVersion": { "type": "string", "pattern": "^\\d{1,6}(\\.\\d{1,6}){0,3}$" },
+        "minBuild": { "type": "integer", "minimum": 1, "maximum": 2100000000 }
+      }
+    }
+  }
+}

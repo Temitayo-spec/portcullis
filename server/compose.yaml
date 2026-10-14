@@ -1,0 +1,16 @@
+# docker compose up -d                                  start the server on port 8080
+# docker compose run --rm -e USER=$USER gatectl status  change or check the gate
+services:
+  portcullis:
+    build: .
+    ports: ["8080:8080"]
+    volumes: [data:/data, state:/state]
+    restart: unless-stopped
+  gatectl:
+    build: .
+    entrypoint: ["gatectl"]
+    volumes: [data:/data, state:/state]
+    profiles: ["tools"]
+volumes:
+  data:
+  state:

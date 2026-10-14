@@ -1,0 +1,92 @@
+[
+  { "name": "literal true pauses", "rule": "R10",
+    "now": "2026-10-13T12:00:00Z",
+    "gate": { "maintenance": { "active": true, "reason": "upgrade" } },
+    "device": { "store": "play", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "maintenance", "reason": "upgrade", "until": null } },
+
+  { "name": "string true does not pause", "rule": "R10",
+    "now": "2026-10-13T12:00:00Z",
+    "gate": { "maintenance": { "active": "true" } },
+    "device": { "store": "play", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "run" } },
+
+  { "name": "the number 1 does not pause", "rule": "R10",
+    "now": "2026-10-13T12:00:00Z",
+    "gate": { "maintenance": { "active": 1 } },
+    "device": { "store": "play", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "run" } },
+
+  { "name": "active false does not pause", "rule": "R10",
+    "now": "2026-10-13T12:00:00Z",
+    "gate": { "maintenance": { "active": false } },
+    "device": { "store": "play", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "run" } },
+
+  { "name": "maintenance that is not an object does not pause", "rule": "R10",
+    "now": "2026-10-13T12:00:00Z",
+    "gate": { "maintenance": true },
+    "device": { "store": "play", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "run" } },
+
+  { "name": "a pause reaches installs with no store", "rule": "R10",
+    "now": "2026-10-13T12:00:00Z",
+    "gate": { "maintenance": { "active": true } },
+    "device": { "store": null, "version": null, "build": null },
+    "expect": { "kind": "maintenance", "reason": null, "until": null } },
+
+  { "name": "an unknown reason becomes null", "rule": "R11",
+    "now": "2026-10-13T12:00:00Z",
+    "gate": { "maintenance": { "active": true, "reason": "party" } },
+    "device": { "store": "play", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "maintenance", "reason": null } },
+
+  { "name": "no reason is null", "rule": "R11",
+    "now": "2026-10-13T12:00:00Z",
+    "gate": { "maintenance": { "active": true } },
+    "device": { "store": "appstore", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "maintenance", "reason": null } },
+
+  { "name": "until tomorrow is shown", "rule": "R12",
+    "now": "2026-10-13T12:00:00Z",
+    "gate": { "maintenance": { "active": true, "until": "2026-10-14T18:00:00Z" } },
+    "device": { "store": "play", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "maintenance", "until": "2026-10-14T18:00:00Z" } },
+
+  { "name": "until in another time zone is the same instant", "rule": "R12",
+    "now": "2026-10-13T12:00:00Z",
+    "gate": { "maintenance": { "active": true, "until": "2026-10-14T19:00:00+01:00" } },
+    "device": { "store": "play", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "maintenance", "until": "2026-10-14T18:00:00Z" } },
+
+  { "name": "until exactly 7 days ahead is shown", "rule": "R12",
+    "now": "2026-10-13T12:00:00Z",
+    "gate": { "maintenance": { "active": true, "until": "2026-10-20T12:00:00Z" } },
+    "device": { "store": "play", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "maintenance", "until": "2026-10-20T12:00:00Z" } },
+
+  { "name": "until more than 7 days ahead is hidden", "rule": "R12",
+    "now": "2026-10-13T12:00:00Z",
+    "gate": { "maintenance": { "active": true, "until": "2026-10-20T12:00:01Z" } },
+    "device": { "store": "play", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "maintenance", "until": null } },
+
+  { "name": "until in the past is hidden but the pause stays", "rule": "R12",
+    "now": "2026-10-13T12:00:00Z",
+    "gate": { "maintenance": { "active": true, "until": "2026-10-13T11:00:00Z" } },
+    "device": { "store": "play", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "maintenance", "until": null } },
+
+  { "name": "until that is not a time is hidden", "rule": "R12",
+    "now": "2026-10-13T12:00:00Z",
+    "gate": { "maintenance": { "active": true, "until": "tomorrow" } },
+    "device": { "store": "play", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "maintenance", "until": null } },
+
+  { "name": "a pause outranks an update request", "rule": "R13",
+    "now": "2026-10-13T12:00:00Z",
+    "gate": { "maintenance": { "active": true },
+              "stores": { "play": { "minVersion": "3.0.0" } } },
+    "device": { "store": "play", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "maintenance", "reason": null, "until": null } }
+]

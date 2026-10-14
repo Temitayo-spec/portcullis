@@ -1,0 +1,167 @@
+[
+  {
+    "name": "a list instead of an object",
+    "rule": "R33",
+    "gate": [],
+    "expect": "refuse"
+  },
+  {
+    "name": "a string instead of an object",
+    "rule": "R33",
+    "gate": "paused",
+    "expect": "refuse"
+  },
+
+  {
+    "name": "a server-written message",
+    "rule": "R34",
+    "gate": {
+      "maintenance": { "active": true, "message": "Download the new app here" }
+    },
+    "expect": "refuse"
+  },
+  {
+    "name": "a store link",
+    "rule": "R34",
+    "gate": { "storeUrl": "https://example.com/app.apk" },
+    "expect": "refuse"
+  },
+  {
+    "name": "one minimum for every store",
+    "rule": "R34",
+    "gate": { "minVersion": "2.4.0" },
+    "expect": "refuse"
+  },
+  {
+    "name": "a field the contract does not define",
+    "rule": "R34",
+    "gate": { "notice": "back soon" },
+    "expect": "refuse"
+  },
+
+  {
+    "name": "active false is written by leaving maintenance out",
+    "rule": "R35",
+    "gate": { "maintenance": { "active": false } },
+    "expect": "refuse"
+  },
+  {
+    "name": "an empty maintenance",
+    "rule": "R35",
+    "gate": { "maintenance": {} },
+    "expect": "refuse"
+  },
+  {
+    "name": "a quoted true",
+    "rule": "R35",
+    "gate": { "maintenance": { "active": "true" } },
+    "expect": "refuse"
+  },
+
+  {
+    "name": "an unknown reason",
+    "rule": "R36",
+    "gate": { "maintenance": { "active": true, "reason": "party" } },
+    "expect": "refuse"
+  },
+
+  {
+    "name": "until that is not a time",
+    "rule": "R37",
+    "gate": { "maintenance": { "active": true, "until": "tomorrow" } },
+    "expect": "refuse"
+  },
+  {
+    "name": "until without a time zone",
+    "rule": "R37",
+    "gate": {
+      "maintenance": { "active": true, "until": "2026-10-14T18:00:00" }
+    },
+    "expect": "refuse"
+  },
+
+  {
+    "name": "ios is not a store key",
+    "rule": "R38",
+    "gate": { "stores": { "ios": { "minVersion": "2.4.0" } } },
+    "expect": "refuse"
+  },
+  {
+    "name": "testflight is not a store key",
+    "rule": "R38",
+    "gate": { "stores": { "testflight": { "minVersion": "2.4.0" } } },
+    "expect": "refuse"
+  },
+  {
+    "name": "store keys are lowercase",
+    "rule": "R38",
+    "gate": { "stores": { "Play": { "minVersion": "2.4.0" } } },
+    "expect": "refuse"
+  },
+
+  {
+    "name": "an empty store entry",
+    "rule": "R39",
+    "gate": { "stores": { "play": {} } },
+    "expect": "refuse"
+  },
+  {
+    "name": "a link inside a store entry",
+    "rule": "R39",
+    "gate": {
+      "stores": {
+        "play": { "minVersion": "2.4.0", "url": "https://example.com" }
+      }
+    },
+    "expect": "refuse"
+  },
+  {
+    "name": "a version with a leading v",
+    "rule": "R39",
+    "gate": { "stores": { "play": { "minVersion": "v2.4.0" } } },
+    "expect": "refuse"
+  },
+  {
+    "name": "a version with a tail",
+    "rule": "R39",
+    "gate": { "stores": { "play": { "minVersion": "2.4.0-beta" } } },
+    "expect": "refuse"
+  },
+  {
+    "name": "a quoted build",
+    "rule": "R39",
+    "gate": { "stores": { "play": { "minBuild": "120" } } },
+    "expect": "refuse"
+  },
+  {
+    "name": "build zero",
+    "rule": "R39",
+    "gate": { "stores": { "play": { "minBuild": 0 } } },
+    "expect": "refuse"
+  },
+  {
+    "name": "a fractional build",
+    "rule": "R39",
+    "gate": { "stores": { "play": { "minBuild": 1.5 } } },
+    "expect": "refuse"
+  },
+
+  {
+    "name": "a quoted switch value",
+    "rule": "R40",
+    "gate": { "switches": { "rewards": "false" } },
+    "expect": "refuse"
+  },
+  {
+    "name": "a switch id with a capital",
+    "rule": "R40",
+    "gate": { "switches": { "Rewards": false } },
+    "expect": "refuse"
+  },
+  {
+    "name": "a switch id over 32 characters",
+    "rule": "R40",
+    "gate": { "switches": { "a_switch_id_that_runs_past_32_chars": false } },
+    "expect": "refuse"
+  }
+]
