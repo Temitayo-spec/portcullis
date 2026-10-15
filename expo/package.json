@@ -19,7 +19,10 @@
     "expo-portcullis",
     "Portcullis"
   ],
-  "repository": "https://github.com/Temitayo-spec/portcullis",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Temitayo-spec/portcullis.git"
+  },
   "bugs": {
     "url": "https://github.com/Temitayo-spec/portcullis/issues"
   },
