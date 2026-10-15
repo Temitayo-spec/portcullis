@@ -129,8 +129,8 @@ function decideGate(gate: Record<string, unknown>, install: Install, now: number
       current: running.join('.'),
     };
   }
-  const minBuild = readBuild(entry.minBuild);
-  const build = readBuild(install.build);
+  const minBuild = readBuild(entry.minBuild, false); // the gate's must be a JSON number
+  const build = readBuild(install.build, true); // the device may send a string (R17)
   if (minBuild !== null && build !== null && build < minBuild) {
     return {
       kind: 'update',
@@ -164,10 +164,9 @@ function decideSwitches(
 
 /** "1.2.3" → [1, 2, 3]; null for anything that can't be read (R15). */
 export function parseVersion(value: unknown): number[] | null {
-  if (typeof value !== 'string') return null;
-  const trimmed = value.trim();
-  if (trimmed.length === 0 || trimmed.length > 32) return null;
-  const core = trimmed.replace(/^v/i, '').split(/[-+]/, 1)[0] ?? '';
+  // No trimming, and only a lowercase "v": a space or "V" can't be read (R15).
+  if (typeof value !== 'string' || value.length === 0 || value.length > 32) return null;
+  const core = value.replace(/^v/, '').split(/[-+]/, 1)[0] ?? '';
   const parts = core.split('.');
   if (parts.length > 4) return null;
   const numbers: number[] = [];
@@ -187,14 +186,18 @@ export function compareVersions(a: readonly number[], b: readonly number[]): num
   return 0;
 }
 
-/** A whole number from 1 to 2,100,000,000, or a string of digits that is one (R17). */
-export function readBuild(value: unknown): number | null {
+/**
+ * A whole number from 1 to 2,100,000,000 (R17). `fromDevice` also accepts a
+ * string of digits, as the device sends it; a gate's minBuild must be a number.
+ */
+export function readBuild(value: unknown, fromDevice: boolean): number | null {
   const n =
-    typeof value === 'string' && /^\d{1,10}$/.test(value.trim()) ? Number(value.trim()) : value;
+    fromDevice && typeof value === 'string' && /^\d{1,10}$/.test(value) ? Number(value) : value;
   return typeof n === 'number' && Number.isInteger(n) && n >= 1 && n <= MAX_BUILD ? n : null;
 }
 
-const ISO_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?(Z|[+-]\d{2}:\d{2})?$/;
+// A zone is required: without one, the same text is a different moment on every phone (R12).
+const ISO_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,9})?)?(Z|[+-]\d{2}:\d{2})$/;
 
 /** An expected return time within the next 7 days, or null (R12). */
 export function readUntil(value: unknown, now: number): number | null {

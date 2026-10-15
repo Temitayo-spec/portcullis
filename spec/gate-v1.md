@@ -105,7 +105,9 @@ in this order: pause, then minimums, then run.
 else, or nothing, becomes `null`, and the app shows its general sentence.
 
 **R12.** `until` is kept only when it is a string of at most 40 characters that
-reads as an ISO 8601 time, is after now, and is at most 7 days after now.
+reads as an ISO 8601 time with a time zone (`Z` or an offset such as `+01:00`),
+is after now, and is at most 7 days after now. A time with no zone can't be
+read, since it would mean a different moment on every phone.
 Otherwise it is `null` and the app shows no time. `until` never ends a pause;
 only a new gate does.
 
@@ -118,8 +120,10 @@ own store key, and only a key actually written in the document (so
 store, the app runs.
 
 **R15.** A version is 1 to 4 dot-separated numbers of up to 6 digits each. The
-app MUST ignore a leading `v` and anything from the first `-` or `+`. Anything
-else (a space, a letter, a fifth number) cannot be read.
+app MUST ignore a leading lowercase `v` and anything from the first `-` or `+`.
+Anything else cannot be read: a space anywhere (including around the version),
+a capital `V`, any other letter, or a fifth number. The gate's `minVersion` is
+read the same way.
 
 **R16.** Versions compare number by number, left to right, as numbers, so
 `1.0.10` is newer than `1.0.9`. A missing number counts as 0, so `1.2` equals
@@ -127,7 +131,8 @@ else (a space, a letter, a fifth number) cannot be read.
 showing the digits the app parsed, never the raw string.
 
 **R17.** A build is a whole number from 1 to 2,100,000,000. The device may
-give it as a string of digits. A device below `minBuild` gets `update` with
+give it as a string of digits; the gate's `minBuild` must be a JSON number, and
+a string there can't be read. A device below `minBuild` gets `update` with
 `below: "build"`. Version is checked first, so a device below both shows the
 version. A dotted iOS build such as `"1.0.3"` cannot be read, so `minBuild`
 never fires for it: such apps should use `minVersion`.
@@ -194,7 +199,8 @@ about the person.
 ## 8. What the validator refuses
 
 The server and `gatectl` MUST refuse the whole gate, and publish nothing from
-it, if:
+it, if any rule below is broken. A field set to `null` counts as present and
+wrong: to leave something out, leave the field out.
 
 **R33.** It isn't a JSON object.
 
@@ -212,7 +218,9 @@ characters. A valid time in the past or more than 7 days ahead is accepted
 with a warning: the app simply shows no time.
 
 **R38.** A store key doesn't match R4. This catches `ios`, `android`,
-`testflight` and typos.
+`testflight` and typos. It also catches `com.android.vending` (use `play`) and
+the sideload installers from R8, since no device ever reports those as its
+store.
 
 **R39.** A store entry is empty or has other fields, a `minVersion` has
 anything but digits and dots (no `v`, no tail), or a `minBuild` isn't a whole

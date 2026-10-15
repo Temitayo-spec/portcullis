@@ -88,5 +88,11 @@
     "gate": { "maintenance": { "active": true },
               "stores": { "play": { "minVersion": "3.0.0" } } },
     "device": { "store": "play", "version": "2.4.0", "build": "120" },
-    "expect": { "kind": "maintenance", "reason": null, "until": null } }
+    "expect": { "kind": "maintenance", "reason": null, "until": null } },
+
+  { "name": "until without a time zone is hidden", "rule": "R12",
+    "now": "2026-10-13T12:00:00Z",
+    "gate": { "maintenance": { "active": true, "until": "2026-10-14T18:00:00" } },
+    "device": { "store": "play", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "maintenance", "until": null } }
 ]

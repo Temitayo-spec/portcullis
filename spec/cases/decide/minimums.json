@@ -135,5 +135,29 @@
     "now": "2026-10-13T12:00:00Z",
     "gate": { "stores": { "play": { "minBuild": 500 } } },
     "device": { "store": "play", "version": "2.4.0", "build": null },
+    "expect": { "kind": "run" } },
+
+  { "name": "a device version with spaces around it cannot be read", "rule": "R15",
+    "now": "2026-10-13T12:00:00Z",
+    "gate": { "stores": { "play": { "minVersion": "2.4.0" } } },
+    "device": { "store": "play", "version": " 2.3.0 ", "build": "110" },
+    "expect": { "kind": "run" } },
+
+  { "name": "a capital V cannot be read", "rule": "R15",
+    "now": "2026-10-13T12:00:00Z",
+    "gate": { "stores": { "play": { "minVersion": "2.4.0" } } },
+    "device": { "store": "play", "version": "V2.3.0", "build": "110" },
+    "expect": { "kind": "run" } },
+
+  { "name": "the gate's minVersion is read like the device's", "rule": "R15",
+    "now": "2026-10-13T12:00:00Z",
+    "gate": { "stores": { "play": { "minVersion": "2.5.0-rc1" } } },
+    "device": { "store": "play", "version": "2.4.0", "build": "120" },
+    "expect": { "kind": "update", "below": "version", "minimum": "2.5.0", "current": "2.4.0" } },
+
+  { "name": "a gate minBuild written as a string asks nobody", "rule": "R17",
+    "now": "2026-10-13T12:00:00Z",
+    "gate": { "stores": { "play": { "minBuild": "200" } } },
+    "device": { "store": "play", "version": "2.4.0", "build": "120" },
     "expect": { "kind": "run" } }
 ]

@@ -70,8 +70,17 @@ type Result struct {
 // OK reports whether the gate may be served or saved.
 func (r Result) OK() bool { return len(r.Problems) == 0 }
 
-// IsStoreKey reports whether key is a store key the contract allows (R4).
-func IsStoreKey(key string) bool { return storeKey.MatchString(key) }
+// notStores are installers no device ever reports as its store (R8, R38):
+// Play's is reported as "play", and sideloads have no store at all.
+var notStores = map[string]bool{
+	"com.android.vending":                 true,
+	"com.google.android.packageinstaller": true,
+	"com.android.packageinstaller":        true,
+	"com.android.shell":                   true,
+}
+
+// IsStoreKey reports whether key is a store key the contract allows (R4, R38).
+func IsStoreKey(key string) bool { return storeKey.MatchString(key) && !notStores[key] }
 
 // IsSwitchID reports whether id is a switch id the contract allows (R5).
 func IsSwitchID(id string) bool { return switchID.MatchString(id) }
@@ -328,6 +337,10 @@ func storeHint(key string) string {
 		return ` For Google Play, use "play".`
 	case "testflight":
 		return " TestFlight installs are never asked to update."
+	case "com.android.vending":
+		return ` That's Play's installer: use "play".`
+	case "com.google.android.packageinstaller", "com.android.packageinstaller", "com.android.shell":
+		return " That's a sideload installer: sideloaded installs have no store."
 	}
 	return ""
 }

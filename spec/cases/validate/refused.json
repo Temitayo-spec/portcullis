@@ -163,5 +163,14 @@
     "rule": "R40",
     "gate": { "switches": { "a_switch_id_that_runs_past_32_chars": false } },
     "expect": "refuse"
-  }
+  },
+
+  { "name": "a null reason", "rule": "R36",
+    "gate": { "maintenance": { "active": true, "reason": null } }, "expect": "refuse" },
+  { "name": "a null until", "rule": "R37",
+    "gate": { "maintenance": { "active": true, "until": null } }, "expect": "refuse" },
+  { "name": "Play's installer is not a store key", "rule": "R38",
+    "gate": { "stores": { "com.android.vending": { "minVersion": "2.4.0" } } }, "expect": "refuse" },
+  { "name": "a sideload installer is not a store key", "rule": "R38",
+    "gate": { "stores": { "com.google.android.packageinstaller": { "minVersion": "2.4.0" } } }, "expect": "refuse" }
 ]
