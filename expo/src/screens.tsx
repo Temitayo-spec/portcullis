@@ -232,13 +232,19 @@ function Button({
   onPress: () => void;
   disabled?: boolean;
 }) {
+  // Pressed state is tracked here rather than with a style function: apps
+  // using NativeWind 4 lose a function-style `style` on Pressable, which left
+  // the button with no background, its dark label invisible on a dark screen.
+  const [pressed, setPressed] = useState(false);
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ disabled, busy: disabled }}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [
+      onPressIn={() => setPressed(true)}
+      onPressOut={() => setPressed(false)}
+      style={[
         styles.button,
         { backgroundColor: colors.button, opacity: disabled ? 0.5 : pressed ? 0.8 : 1 },
       ]}>
