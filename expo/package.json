@@ -59,5 +59,10 @@
     "expo-application": "*",
     "react": "*",
     "react-native": "*"
+  },
+  "peerDependenciesMeta": {
+    "expo-application": {
+      "optional": true
+    }
   }
 }

@@ -1,9 +1,21 @@
-import * as Application from 'expo-application';
+import { requireOptionalNativeModule } from 'expo';
 import { Platform } from 'react-native';
 
 import { PortcullisNative, type InstallSource } from './PortcullisModule';
 import type { Install } from './decide';
 import { storeKeyFor } from './read';
+
+/**
+ * expo-application's native module, read directly and only if it's there.
+ * Never `import 'expo-application'`: its JavaScript requires the native module
+ * the moment it loads, so an over-the-air update reaching a binary built
+ * without it would crash that app at launch. A gate must never do that.
+ */
+const ExpoApplication = requireOptionalNativeModule<{
+  nativeApplicationVersion?: string | null;
+  nativeBuildVersion?: string | null;
+  applicationId?: string | null;
+}>('ExpoApplication');
 
 /** How long to wait for the native module to say which store this is. */
 export const STORE_DEADLINE_MS = 1_500;
@@ -16,8 +28,8 @@ export const STORE_DEADLINE_MS = 1_500;
 export function readInstall(): Install {
   return {
     store: null,
-    version: Application.nativeApplicationVersion ?? null,
-    build: Application.nativeBuildVersion ?? null,
+    version: ExpoApplication?.nativeApplicationVersion || null,
+    build: ExpoApplication?.nativeBuildVersion || null,
   };
 }
 
@@ -65,7 +77,7 @@ export function resetInstallForTests(): void {
 
 /** This app's own Play listing, from its installed package id. Owned by the app, never the server. */
 export function playListing(): string[] {
-  const id = Platform.OS === 'android' ? Application.applicationId : null;
+  const id = Platform.OS === 'android' ? ExpoApplication?.applicationId || null : null;
   return id
     ? [`market://details?id=${id}`, `https://play.google.com/store/apps/details?id=${id}`]
     : [];

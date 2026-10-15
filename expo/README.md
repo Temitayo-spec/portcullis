@@ -10,6 +10,8 @@ This is the app side. The server and `gatectl` live in [`server/`](../server), a
 npx expo install expo-portcullis expo-application
 ```
 
+`expo-application` is how the library reads your app's version and build. It's optional, and the library never imports it directly, so an over-the-air update reaching an older binary without it can't crash: version and build are just unknown there, minimums don't apply, and pausing still works.
+
 Wrap your app:
 
 ```tsx
