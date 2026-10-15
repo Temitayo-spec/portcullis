@@ -13,3 +13,9 @@ __tests__
 /android/src/test/
 /android/build/
 /example/
+
+# Development-only files
+/bun.lock
+/.prettierrc
+/eslint.config.cjs
+/tsconfig.json
