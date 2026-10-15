@@ -46,13 +46,29 @@ function Home() {
 | `url` | Where the gate is served. An empty string turns the gate off |
 | `switches` | The switch ids your app ships. The gate can only set these |
 | `messages` | Your own words for the screens; anything left out uses the English defaults |
-| `storeLinks` | Where each store's Update button goes, such as `{ appstore: 'https://apps.apple.com/app/id123' }`. Play defaults to your app's own listing |
+| `storeLinks` | Where each store's Update button goes, such as `{ 'com.huawei.appmarket': 'appmarket://details?id=…' }`. Overrides the defaults below |
+| `appStoreId` | Your numeric App Store id, for the iOS Update button. Optional: it's looked up from your bundle id when left out |
 | `renderPause`, `renderUpdate` | Replace the default screens |
 | `onDecision` | Called whenever the decision changes, for analytics |
 
 ## Stores
 
-Minimum versions are set per store. Telling which store installed the app needs this package's native module, which is still being built. Until then every install has no store, so it is never asked to update, and switches can only hide. Pausing works everywhere, including Expo Go.
+Minimum versions are set per store. This package's native module tells which store installed the app:
+
+- **Android:** the package that installed it. Google Play becomes `play`; another store, such as Galaxy Store, is its own package name. Sideloads have no store.
+- **iOS:** App Store installs are `appstore`. TestFlight, development builds and the simulator have no store.
+
+An install with no store is never asked to update, and switches there can only hide. The module never shows an App Store sign-in prompt.
+
+The Update button:
+
+- **Play:** Play's own full-screen update flow. If Play can't run it, your Play listing opens instead.
+- **App Store:** your App Store page, in a sheet inside the app.
+- **Other stores:** instructions naming the store, unless you pass a link in `storeLinks`.
+
+In Expo Go, or anywhere the native module isn't built in, every install has no store. Pausing and switches still work there.
+
+Building the example for Android needs Java 17; newer versions fail while configuring React Native's native code.
 
 ## Try the example
 

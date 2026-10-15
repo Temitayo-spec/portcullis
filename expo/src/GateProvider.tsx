@@ -11,7 +11,7 @@ import {
 import { AppState } from 'react-native';
 
 import { applyReading, LAUNCH_STATE, type Decision, type GateState, type Install } from './decide';
-import { readInstall } from './install';
+import { loadInstall, readInstall } from './install';
 import { DEFAULT_MESSAGES, type Messages } from './messages';
 import { readGate, shouldRecheck } from './read';
 import {
@@ -36,6 +36,8 @@ export interface Gate {
   unreachable: boolean;
   /** True once the first read has finished, answered or not. */
   ready: boolean;
+  /** The install the last read used, store included. Null before the first read. */
+  install: Install | null;
 }
 
 export interface GateProviderProps {
@@ -50,6 +52,11 @@ export interface GateProviderProps {
    * defaults to this app's own listing; others show instructions instead.
    */
   storeLinks?: Readonly<Record<string, string>>;
+  /**
+   * This app's numeric App Store id, for the iOS update button. Optional: the
+   * native module looks it up from the bundle id when it's left out.
+   */
+  appStoreId?: string;
   /** Replace the default pause screen. */
   renderPause?: (props: PauseScreenProps) => ReactNode;
   /** Replace the default update screen. */
@@ -80,6 +87,7 @@ export function GateProvider({
   switches: switchIds = NO_IDS,
   messages,
   storeLinks,
+  appStoreId,
   renderPause,
   renderUpdate,
   onDecision,
@@ -87,33 +95,39 @@ export function GateProvider({
   fetchImpl,
   children,
 }: GateProviderProps) {
-  const install = useMemo(() => installOverride ?? readInstall(), [installOverride]);
+  // Version and build are known at once; the store waits on the native module.
+  const version = useMemo(() => (installOverride ?? readInstall()).version, [installOverride]);
   const [round, setRound] = useState(0);
-  const [answer, setAnswer] = useState<{ round: number; state: GateState; unreachable: boolean }>({
-    round: -1,
-    state: LAUNCH_STATE,
-    unreachable: false,
-  });
+  const [answer, setAnswer] = useState<{
+    round: number;
+    state: GateState;
+    unreachable: boolean;
+    install: Install | null;
+  }>({ round: -1, state: LAUNCH_STATE, unreachable: false, install: null });
 
   // Kept in a ref so a re-render with a new array or object doesn't trigger a
   // read. Declared before the read effect, so it is up to date when that runs.
-  const latest = useRef({ install, switchIds, fetchImpl });
+  const latest = useRef({ installOverride, switchIds, fetchImpl });
   useEffect(() => {
-    latest.current = { install, switchIds, fetchImpl };
+    latest.current = { installOverride, switchIds, fetchImpl };
   });
 
   useEffect(() => {
     if (!url) return; // no gate: the app runs, and `ready` is true from the start
     const stop = new AbortController();
-    const { install, switchIds, fetchImpl } = latest.current;
-    readGate(url, install, { fetchImpl, signal: stop.signal }).then((reading) => {
+    const { installOverride, switchIds, fetchImpl } = latest.current;
+    (async () => {
+      const install = installOverride ?? (await loadInstall());
+      if (stop.signal.aborted) return;
+      const reading = await readGate(url, install, { fetchImpl, signal: stop.signal });
       if (stop.signal.aborted) return;
       setAnswer((prev) => ({
         round,
         state: applyReading(prev.state, reading, install, switchIds, Date.now()),
         unreachable: reading.kind === 'unknown',
+        install,
       }));
-    });
+    })();
     return () => stop.abort();
   }, [round, url]);
 
@@ -163,6 +177,7 @@ export function GateProvider({
       // Only about a read that has finished; while one is in flight, `checking` says so.
       unreachable: answer.unreachable && !checking,
       ready: !url || answer.round >= 0,
+      install: answer.install,
     };
   }, [answer, decision, checkAgain, checking]);
 
@@ -176,7 +191,7 @@ export function GateProvider({
       checking: value.checking,
       unreachable: value.unreachable,
       onCheckAgain: checkAgain,
-      version: install.version,
+      version,
     };
     content = renderPause ? renderPause(props) : <PauseScreen {...props} />;
   } else if (decision.kind === 'update') {
@@ -184,7 +199,8 @@ export function GateProvider({
       decision,
       messages: words,
       storeLinks,
-      version: install.version,
+      appStoreId,
+      version,
     };
     content = renderUpdate ? renderUpdate(props) : <UpdateScreen {...props} />;
   }

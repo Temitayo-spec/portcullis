@@ -8,6 +8,6 @@ A self-hosted remote gate for Expo apps: pause the app or require an update, per
 | [`server/`](server) | The Go server and `gatectl`, the command for changing the gate |
 | [`expo/`](expo) | `expo-portcullis`, the library apps wrap themselves in, with an example app |
 
-Status: v1 in progress. The native module that tells which store installed an app is next; until then, pausing works everywhere and update requests can't yet reach real installs.
+Status: v1 in progress. The spec, server, `gatectl`, library and native module are built and tested on the iOS simulator and an Android emulator. Next: using it in real apps, then publishing.
 
 MIT licensed.

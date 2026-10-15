@@ -1,6 +1,12 @@
 import * as Application from 'expo-application';
-import { GateProvider, useGate, type Install } from 'expo-portcullis';
-import { useState, type ReactNode } from 'react';
+import {
+  GateProvider,
+  readInstallSource,
+  useGate,
+  type Install,
+  type InstallSource,
+} from 'expo-portcullis';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
 /**
@@ -17,8 +23,8 @@ const SHIPPED = { rewards: true, referrals: false } as const;
 const SWITCH_IDS = Object.keys(SHIPPED);
 
 export default function App() {
-  // Without the native module (milestone 4) an install has no store, so it is
-  // never asked to update. This lets the example pretend to be a Play install.
+  // A simulator, emulator or adb install has no store, so it is never asked to
+  // update. This lets the example pretend to be a Play install.
   const [pretendPlay, setPretendPlay] = useState(false);
   const install: Install | undefined = pretendPlay
     ? {
@@ -37,6 +43,19 @@ export default function App() {
 
 function Home({ pretendPlay, onPretendPlay }: { pretendPlay: boolean; onPretendPlay: (on: boolean) => void }) {
   const gate = useGate();
+  // What the native module says about this install, before it becomes a store key.
+  const [source, setSource] = useState<InstallSource | null | 'loading'>('loading');
+  useEffect(() => {
+    readInstallSource().then(setSource);
+  }, []);
+  const reported =
+    source === 'loading'
+      ? 'asking…'
+      : source === null
+        ? 'no native module'
+        : source.platform === 'android'
+          ? `installer ${source.installer ?? 'none'}`
+          : `environment ${source.environment}`;
   const status = !gate.ready
     ? 'Reading the gate…'
     : gate.unreachable
@@ -63,6 +82,8 @@ function Home({ pretendPlay, onPretendPlay }: { pretendPlay: boolean; onPretendP
         <Text style={styles.body}>
           Version {Application.nativeApplicationVersion ?? 'unknown'}, build {Application.nativeBuildVersion ?? 'unknown'}
         </Text>
+        <Text style={styles.body}>Native module: {reported}</Text>
+        <Text style={styles.body}>Store: {gate.install ? (gate.install.store ?? 'none') : 'not read yet'}</Text>
         <View style={styles.row}>
           <Text style={[styles.body, styles.grow]}>Pretend this is a Google Play install</Text>
           <Switch

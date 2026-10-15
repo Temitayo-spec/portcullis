@@ -18,4 +18,5 @@ export {
   type Reason,
 } from './decide';
 export { readGate, shouldRecheck, storeKeyFor, CONTRACT } from './read';
-export { readInstall } from './install';
+export { loadInstall, readInstall, readInstallSource } from './install';
+export type { InstallSource, PlayUpdateResult } from './PortcullisModule';

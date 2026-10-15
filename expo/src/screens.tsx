@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 
+import { PortcullisNative } from './PortcullisModule';
 import type { Decision } from './decide';
 import { playListing } from './install';
 import type { Messages } from './messages';
@@ -28,6 +29,8 @@ export interface UpdateScreenProps {
   decision: Extract<Decision, { kind: 'update' }>;
   messages: Messages;
   storeLinks?: Readonly<Record<string, string>>;
+  /** This app's numeric App Store id; looked up from the bundle id when left out. */
+  appStoreId?: string;
   version: string | null;
 }
 
@@ -71,13 +74,16 @@ export function PauseScreen({
 }
 
 /** The default update screen. Replace it with GateProvider's `renderUpdate`. */
-export function UpdateScreen({ decision, messages, storeLinks, version }: UpdateScreenProps) {
+export function UpdateScreen({
+  decision,
+  messages,
+  storeLinks,
+  appStoreId,
+  version,
+}: UpdateScreenProps) {
   const colors = useColors();
-  const links = storeLinks?.[decision.store]
-    ? [storeLinks[decision.store]!]
-    : decision.store === 'play'
-      ? playListing()
-      : [];
+  const [failed, setFailed] = useState(false);
+  const action = updateAction(decision.store, storeLinks, appStoreId);
   const storeName = messages.storeNames[decision.store] ?? 'your app store';
   return (
     <Frame colors={colors} version={version} messages={messages}>
@@ -87,33 +93,71 @@ export function UpdateScreen({ decision, messages, storeLinks, version }: Update
       <Text style={[styles.body, { color: colors.muted }]}>
         {messages.updateBody(decision.below, String(decision.minimum), String(decision.current))}
       </Text>
-      {links.length > 0 ? (
+      {action ? (
         <Button
           colors={colors}
           label={messages.updateButton}
           onPress={() => {
-            openFirst(links);
+            action().then((opened) => setFailed(!opened));
           }}
         />
-      ) : (
+      ) : null}
+      {!action || failed ? (
         <Text style={[styles.body, { color: colors.text }]}>
           {messages.updateInstructions(storeName)}
         </Text>
-      )}
+      ) : null}
     </Frame>
   );
 }
 
-/** Tries each link in turn: the store app first, then its web page. */
-async function openFirst(links: readonly string[]): Promise<void> {
+/**
+ * What the Update button does for this store, or null for no button. Every
+ * destination is owned by the app, never sent by the server (R2):
+ *
+ * - a link the app passed in `storeLinks` wins;
+ * - Play: Play's own update screen (native module), else the app's listing;
+ * - App Store: the app's page in an in-app sheet (native module).
+ *
+ * Resolves false when nothing could be opened, so the screen shows instructions.
+ */
+function updateAction(
+  store: string,
+  storeLinks: Readonly<Record<string, string>> | undefined,
+  appStoreId: string | undefined
+): (() => Promise<boolean>) | null {
+  const link = storeLinks?.[store];
+  if (link) return () => openFirst([link]);
+  if (store === 'play') {
+    const startPlayUpdate = PortcullisNative?.startPlayUpdateAsync;
+    const listing = playListing();
+    if (startPlayUpdate) {
+      return async () => {
+        const result = await startPlayUpdate().catch(() => 'failed' as const);
+        // Accepted or cancelled: Play showed its screen, and the person chose.
+        return result === 'accepted' || result === 'cancelled' || openFirst(listing);
+      };
+    }
+    return listing.length > 0 ? () => openFirst(listing) : null;
+  }
+  const openAppStorePage = PortcullisNative?.openAppStorePageAsync;
+  if (store === 'appstore' && openAppStorePage) {
+    return () => openAppStorePage(appStoreId ?? null).catch(() => false);
+  }
+  return null;
+}
+
+/** Tries each link in turn: the store app first, then its web page. False if none opened. */
+async function openFirst(links: readonly string[]): Promise<boolean> {
   for (const link of links) {
     try {
       await Linking.openURL(link);
-      return;
+      return true;
     } catch {
       // try the next one
     }
   }
+  return false;
 }
 
 type Colors = {
