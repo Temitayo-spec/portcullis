@@ -32,10 +32,12 @@ public class PortcullisModule: Module {
   /// Never calls AppTransaction.refresh(): that shows an App Store sign-in
   /// prompt, which a gate must never do at launch. `shared` doesn't prompt;
   /// it throws instead, and a throw here means "unknown", so no store.
+  /// AppTransaction needs iOS 16; on iOS 15 the answer is "unknown" too.
   static func environment() async -> String {
     #if targetEnvironment(simulator)
     return "simulator"
     #else
+    guard #available(iOS 16.0, *) else { return "unknown" }
     do {
       guard case .verified(let transaction) = try await AppTransaction.shared else { return "unknown" }
       switch transaction.environment {

@@ -1,6 +1,6 @@
 {
   "name": "expo-portcullis",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A remote pause and update gate for Expo apps. The server can never put words or links on your screen.",
   "main": "build/index.js",
   "types": "build/index.d.ts",

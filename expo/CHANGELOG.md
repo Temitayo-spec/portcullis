@@ -2,6 +2,10 @@
 
 ## Unpublished
 
+## 0.1.1 — 2026-10-15
+
+- iOS: works on iOS 15.1 and later, Expo SDK 55's minimum (0.1.0 required 16.4, which broke `pod install` in apps that support older iPhones). On iOS 15 the install reports no store, so it's never asked to update; pausing works as before.
+
 ## 0.1.0 — 2026-10-15
 
 First release.

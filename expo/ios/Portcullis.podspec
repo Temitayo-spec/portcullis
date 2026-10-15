@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
   s.license        = package['license']
   s.author         = package['author']
   s.homepage       = package['homepage']
-  s.platforms      = { :ios => '16.4' }
+  s.platforms      = { :ios => '15.1' } # Expo SDK 55's minimum
   s.swift_version  = '5.9'
   s.source         = { git: package['repository'] }
   s.static_framework = true
