@@ -1,18 +1,21 @@
 require 'json'
 
 package = JSON.parse(File.read(File.join(__dir__, '..', 'package.json')))
+# npm publishes "repository" as { "type": "git", "url": "git+https://..." }; accept a string too.
+repository = package['repository']
+repository_url = (repository.is_a?(Hash) ? repository['url'] : repository).to_s.sub(/\Agit\+/, '')
 
 Pod::Spec.new do |s|
   s.name           = 'Portcullis'
   s.version        = package['version']
   s.summary        = package['description']
-  s.description    = package['description']
+  s.description    = 'The native half of expo-portcullis: which store installed the app, and the store update screens.'
   s.license        = package['license']
   s.author         = package['author']
   s.homepage       = package['homepage']
   s.platforms      = { :ios => '15.1' } # Expo SDK 55's minimum
   s.swift_version  = '5.9'
-  s.source         = { git: package['repository'] }
+  s.source         = { git: repository_url, tag: "v#{s.version}" }
   s.static_framework = true
 
   s.dependency 'ExpoModulesCore'

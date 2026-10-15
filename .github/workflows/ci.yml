@@ -27,3 +27,10 @@ jobs:
       - run: bunx tsc --noEmit -p .
       - run: bun run lint
       - run: bunx jest --ci
+  podspec:
+    # CocoaPods must be able to read the podspec as npm publishes package.json
+    # (0.1.0 broke pod install because "repository" became an object).
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: pod ipc spec expo/ios/Portcullis.podspec > /dev/null
