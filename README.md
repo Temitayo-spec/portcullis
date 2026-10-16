@@ -28,6 +28,8 @@ curl localhost:8080/health
 
 It should print `{"gate":"current","lastGood":"saved","ok":true}`.
 
+To deploy without building, use the published image, `ghcr.io/temitayo-spec/portcullis` (amd64 and arm64), with volumes at `/data` and `/state`.
+
 **2. Add the gate to your app.** In your Expo app's folder:
 
 ```bash
